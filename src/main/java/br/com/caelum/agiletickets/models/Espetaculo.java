@@ -2,6 +2,7 @@ package br.com.caelum.agiletickets.models;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -13,8 +14,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.Weeks;
 
 @Entity
 public class Espetaculo {
@@ -81,8 +84,32 @@ public class Espetaculo {
 	}
 	
 	public List<Sessao> criaSessoes(LocalDate inicio, LocalDate fim, LocalTime horario, Periodicidade periodicidade) {
-		// ALUNO: Não apague esse metodo. Esse sim será usado no futuro! ;)
-		return null;
+		if (inicio.isAfter(fim)) {
+			throw new IllegalArgumentException("Data Inicio Não Pode Ser Maior que Data Fim");
+		}
+		List<Sessao> sessoes = new ArrayList<Sessao>();
+		
+		if (periodicidade == Periodicidade.DIARIA){
+			int dias = Days.daysBetween(inicio, fim).getDays();
+			for(int i = 0; i<=dias;i++){
+				Sessao s = new Sessao();
+				s.setEspetaculo(this);
+				s.setInicio(inicio.plusDays(i).toDateTime(horario));
+				sessoes.add(s);
+			}
+		}
+		else{
+			int semanas = Weeks.weeksBetween(inicio, fim).getWeeks();
+			for(int i = 0; i<=semanas;i++){
+				Sessao s = new Sessao();
+				s.setEspetaculo(this);
+				s.setInicio(inicio.plusWeeks(i).toDateTime(horario));
+				sessoes.add(s);
+			}
+		}
+		return sessoes;
+		
+		
 	}
 	
 	public boolean Vagas(int qtd, int min)
